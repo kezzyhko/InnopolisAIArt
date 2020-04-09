@@ -1,12 +1,23 @@
 import random
 import string
+import math
+from PIL import Image, ImageChops, ImageDraw
+from functools import reduce
+import operator
 
 
+
+# Problem definition
+
+W = 512
+H = 512
 
 POPULATION_SIZE = 10
 
+input_image = Image.open("./input.png")
 def fitness(member):
-	return abs(10-len(member))
+	h = ImageChops.difference(member, input_image).histogram()
+	return math.sqrt(reduce(operator.add, map(lambda h, i: h*(i**2), h, range(256))) / (float(member.size[0]) * member.size[1]))
 
 i = 0
 def random_member():
@@ -15,24 +26,28 @@ def random_member():
 	i+=1
 
 def mutated(member):
-	if (random.randint(1, 2) == 1):
-		return member[:-1]
-	else:
-		return member + random.choice(string.ascii_lowercase)
+	new_member = member.copy()
+	draw = ImageDraw.Draw(new_member)
+	draw.text((random.randint(1, W), random.randint(1, H)), "Sample Text" ,(255,255,255))
+	return new_member
 
 
 
-# Random initial population
+# Initial population
+
 population = []
+initial_fitness = fitness(Image.new('RGB', (W, H)))
 for i in range(POPULATION_SIZE):
-	member = random_member()
-	population += [(fitness(member), member)]
+	member = Image.new('RGB', (W, H))
+	population += [(initial_fitness, member)]
 population.sort()
 
 
+
 # Generate new population
-i = 0
-while (population[0][0] > 0 and i <= 1000):
+
+c = 0
+while (population[0][0] > 0 and c <= 1000):
 	new_population = []
 
 	for i in range(POPULATION_SIZE // 2):
@@ -44,8 +59,10 @@ while (population[0][0] > 0 and i <= 1000):
 		new_population += [(fitness(new_member), new_member)]
 
 	population = new_population
-	population.sort()
+	population.sort(key=lambda x: x[0])
 
-	i+=1
+	print(c)
+	c+=1
 
 print(population[0][1])
+population[0][1].save('output.png', 'PNG')
