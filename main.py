@@ -1,68 +1,70 @@
 import random
-import string
 import math
 from PIL import Image, ImageChops, ImageDraw
-from functools import reduce
-import operator
 
 
 
-# Problem definition
-
-W = 512
-H = 512
+INPUT_FILE = "./input.png"
+OUTPUT_FILE = "./output.png"
 
 POPULATION_SIZE = 10
+MAX_ITERATIONS = 20000
 
-input_image = Image.open("./input.png")
-def fitness(member):
+
+
+def fitness(member, input_image):
 	h = ImageChops.difference(member, input_image).histogram()
-	return math.sqrt(reduce(operator.add, map(lambda h, i: h*(i**2), h, range(256))) / (float(member.size[0]) * member.size[1]))
+	return math.sqrt(sum(map(lambda h, i: h*(i**2), h, range(256))) / (float(member.size[0]) * member.size[1]))
 
-i = 0
-def random_member():
-	global i
-	return ['adasfgsdfgsdfgsdfg', 'bsdfgggggasdasdasd', 'cs', 'dsdfgsdfgsdfgsdfg', 'e', 'f', 'gsdfgsdfgsdfgsdfg', 'h', 'i', 'j', 'k'][i]
-	i+=1
+
 
 def mutated(member):
 	new_member = member.copy()
 	draw = ImageDraw.Draw(new_member)
-	draw.text((random.randint(1, W), random.randint(1, H)), "Sample Text" ,(255,255,255))
+	draw.text(
+		(random.randint(1, member.width), random.randint(1, member.height)), # random place
+		"Sample Text", # random character
+		(random.randint(1, 255), random.randint(1, 255), random.randint(1, 255)) # random color
+	)
 	return new_member
 
 
 
-# Initial population
-
-population = []
-initial_fitness = fitness(Image.new('RGB', (W, H)))
-for i in range(POPULATION_SIZE):
-	member = Image.new('RGB', (W, H))
-	population += [(initial_fitness, member)]
-population.sort()
-
-
-
-# Generate new population
-
-c = 0
-while (population[0][0] > 0 and c <= 1000):
+def population_selection(population, input_image):
 	new_population = []
-
-	for i in range(POPULATION_SIZE // 2):
+	for i in range(len(population) // 2):
 		# Copy the best half
 		new_population += [population[i]]
 
 		# Add mutated copies
 		new_member = mutated(population[i][1])
-		new_population += [(fitness(new_member), new_member)]
+		new_population += [(fitness(new_member, input_image), new_member)]
+	return sorted(new_population, key = lambda x: x[0])
 
-	population = new_population
-	population.sort(key=lambda x: x[0])
 
-	print(c)
-	c+=1
 
-print(population[0][1])
-population[0][1].save('output.png', 'PNG')
+def produce_art(input_image):
+
+	# Initial population
+	population = []
+	initial_fitness = fitness(Image.new(input_image.mode, input_image.size, (0, 0, 0)), input_image)
+	for i in range(POPULATION_SIZE):
+		member = Image.new(input_image.mode, input_image.size, (0, 0, 0))
+		population += [(initial_fitness, member)]
+	population.sort()
+
+	# Make EA iterations
+	for i in range(MAX_ITERATIONS + 1):
+		population = population_selection(population, input_image)
+
+		# Show progress
+		if (i % (MAX_ITERATIONS//100) == 0):
+			print("%d%%" % (i*100//MAX_ITERATIONS))
+
+	# Return best member of population
+	return population[0][1];
+
+
+
+if __name__ == "__main__":
+	produce_art(Image.open(INPUT_FILE)).save(OUTPUT_FILE)
