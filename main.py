@@ -1,7 +1,9 @@
 import random
-import math
+import re
+import sys
+import inspect
 from os import path
-from PIL import Image, ImageChops, ImageDraw
+from PIL import Image, ImageChops, ImageDraw, ImageStat
 
 
 
@@ -18,22 +20,22 @@ COLLAGE_FILE = "./output/%d.gif"
 GIF_FRAMES = 500
 
 POPULATION_SIZE = 10
-MAX_ITERATIONS = 20000
+MAX_ITERATIONS = 200000
 
 
 
 def fitness(member, input_image):
-	h = ImageChops.difference(member, input_image).histogram()
-	return math.sqrt(sum(map(lambda h, i: h*(i**2), h, range(256))) / (float(member.size[0]) * member.size[1]))
+	return sum(ImageStat.Stat(ImageChops.difference(member, input_image)).rms)
 
 
 
+WORDS = re.findall(r"[\w']+", inspect.getsource(sys.modules[__name__]))
 def mutated(member):
 	new_member = member.copy()
 	draw = ImageDraw.Draw(new_member)
 	draw.text(
-		(random.randint(1, member.width), random.randint(1, member.height)), # random place
-		"Sample Text", # random character
+		(random.randint(-10, member.width), random.randint(-10, member.height)), # random place
+		random.choice(WORDS), # random word
 		(random.randint(1, 255), random.randint(1, 255), random.randint(1, 255)) # random color
 	)
 	return new_member
