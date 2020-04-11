@@ -1,11 +1,17 @@
 import random
 import math
+from os import path
 from PIL import Image, ImageChops, ImageDraw
 
 
 
+# To work with one image (as required in the assignment)
 INPUT_FILE = "./input.png"
 OUTPUT_FILE = "./output.png"
+
+# To work with all images from folder (as was convenient for testing)
+# INPUT_FILE = "./input/%d.png"
+# OUTPUT_FILE = "./output/%d.png"
 
 POPULATION_SIZE = 10
 MAX_ITERATIONS = 20000
@@ -67,4 +73,10 @@ def produce_art(input_image):
 
 
 if __name__ == "__main__":
-	produce_art(Image.open(INPUT_FILE)).save(OUTPUT_FILE)
+	if ("%d" in INPUT_FILE and "%d" in OUTPUT_FILE):
+		i = 1
+		while (path.isfile(INPUT_FILE % i)):
+			produce_art(Image.open(INPUT_FILE % i)).save(OUTPUT_FILE % i)
+			i += 1
+	else:
+		produce_art(Image.open(INPUT_FILE)).save(OUTPUT_FILE)
