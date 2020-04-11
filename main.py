@@ -6,12 +6,16 @@ from PIL import Image, ImageChops, ImageDraw
 
 
 # To work with one image (as required in the assignment)
-INPUT_FILE = "./input.png"
-OUTPUT_FILE = "./output.png"
+# INPUT_FILE = "./input.png"
+# OUTPUT_FILE = "./output.png"
+# COLLAGE_FILE = None
+# GIF_FRAMES = None
 
-# To work with all images from folder (as was convenient for testing)
-# INPUT_FILE = "./input/%d.png"
-# OUTPUT_FILE = "./output/%d.png"
+# To work with all images from folder and also create gifs (as was convenient for testing)
+INPUT_FILE = "./input/%d.png"
+OUTPUT_FILE = "./output/%d.png"
+COLLAGE_FILE = "./output/%d.gif"
+GIF_FRAMES = 500
 
 POPULATION_SIZE = 10
 MAX_ITERATIONS = 20000
@@ -49,8 +53,7 @@ def population_selection(population, input_image):
 
 
 
-def produce_art(input_image):
-
+def produce_art(input_image, create_collage):
 	# Initial population
 	population = []
 	initial_fitness = fitness(Image.new(input_image.mode, input_image.size, (0, 0, 0)), input_image)
@@ -58,6 +61,12 @@ def produce_art(input_image):
 		member = Image.new(input_image.mode, input_image.size, (0, 0, 0))
 		population += [(initial_fitness, member)]
 	population.sort()
+
+	# Initial collage frame
+	if (create_collage):
+		frame = Image.new(input_image.mode, (input_image.width*2, input_image.height), (0, 0, 0))
+		frame.paste(input_image)
+		collage = [frame]
 
 	# Make EA iterations
 	for i in range(MAX_ITERATIONS + 1):
@@ -67,16 +76,30 @@ def produce_art(input_image):
 		if (i % (MAX_ITERATIONS//100) == 0):
 			print("%d%%" % (i*100//MAX_ITERATIONS))
 
+		# Add frame to the collage
+		if (create_collage and i % (MAX_ITERATIONS//GIF_FRAMES) == 0):
+			frame = Image.new(input_image.mode, (input_image.width*2, input_image.height), (0, 0, 0))
+			frame.paste(input_image)
+			frame.paste(population[0][1], (input_image.width, 0))
+			collage += [frame]
+
 	# Return best member of population
-	return population[0][1];
+	return (population[0][1], collage);
 
 
 
 if __name__ == "__main__":
-	if ("%d" in INPUT_FILE and "%d" in OUTPUT_FILE):
+	create_collage = COLLAGE_FILE != None and GIF_FRAMES != None
+	if ("%d" in INPUT_FILE and "%d" in OUTPUT_FILE and (not create_collage or "%d" in COLLAGE_FILE)):
 		i = 1
 		while (path.isfile(INPUT_FILE % i)):
-			produce_art(Image.open(INPUT_FILE % i)).save(OUTPUT_FILE % i)
+			art, collage = produce_art(Image.open(INPUT_FILE % i), create_collage)
+			art.save(OUTPUT_FILE % i)
+			if (create_collage):
+				collage[-1].save(COLLAGE_FILE % i, save_all=True, append_images=collage, optimize=True, duration=40, loop=0)
 			i += 1
 	else:
-		produce_art(Image.open(INPUT_FILE)).save(OUTPUT_FILE)
+		art, collage = produce_art(Image.open(INPUT_FILE), create_collage)
+		art.save(OUTPUT_FILE)
+		if (create_collage):
+			collage[-1].save(COLLAGE_FILE, save_all=True, append_images=collage, optimize=True, duration=40, loop=0)
