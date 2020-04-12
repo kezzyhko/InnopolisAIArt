@@ -65,6 +65,7 @@ def produce_art(input_image, create_collage):
 	population.sort()
 
 	# Initial collage frame
+	collage = None
 	if (create_collage):
 		frame = Image.new(input_image.mode, (input_image.width*2, input_image.height), (0, 0, 0))
 		frame.paste(input_image)
