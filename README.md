@@ -12,13 +12,13 @@ An assignment on Introduction to AI Spring 2020 (2nd year) course in Innopolis U
 `output.png`
 * You can also change input/output file paths by changing constants in the code
 * Script can produce gifs showing progress of EA and comparison with original image (see below for examples)
-* [The pdf report](report.pdf)
+* [The report](https://docs.google.com/document/d/1yQYscN3tsT5ogdV2v3SJ9jXcqkhORwAvhtAWHn14j5w)
 
 
 
 ## Examples of produced arts
 
-More examples be found [here](https://yadi.sk/d/ksCLVsqO1F-Gww)<br>
+More examples be found [here](https://drive.google.com/drive/folders/1AJV6QADpM1lETFVLO2WbgkgXJf7gWFkf)<br>
 Also, you can find all animated collages at one page [here](https://imgur.com/gallery/dHTWSKw).
 
 <p align="center">
