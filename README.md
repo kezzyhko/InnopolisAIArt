@@ -8,8 +8,7 @@ An assignment on Introduction to AI Spring 2020 (2nd year) course in Innopolis U
 ## General information
 
 * The code was implemented, tested and is expected to work in `Python 3.7.7`
-* To use the code, put the input image in the same directory as the `.py` file and name it `input.png`. The output will be saved as
-`output.png`
+* To use the code, create folder named `input` in the same directory as the `.py` file, and put input images inside it. Name them `1.png`, `2.png`, etc. The output images will be saved with the same names in `output` folder.
 * You can also change input/output file paths by changing constants in the code
 * Script can produce gifs showing progress of EA and comparison with original image (see below for examples)
 * [The report](https://docs.google.com/document/d/1yQYscN3tsT5ogdV2v3SJ9jXcqkhORwAvhtAWHn14j5w)
